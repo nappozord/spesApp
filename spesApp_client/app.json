@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "spesApp",
+    "slug": "spesApp",
+    "backgroundColor": "#141414",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "backgroundColor": "#141414"
+    },
+    "android": {
+      "package": "com.nappozord.spesApp",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "description": ""
+  }
+}
