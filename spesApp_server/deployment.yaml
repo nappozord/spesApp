@@ -1,0 +1,108 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spesappserver
+  name: spesappserver
+  namespace: test
+spec:
+  selector:
+    matchLabels:
+      app: spesappserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spesappserver
+    spec:
+      volumes:
+        - name: shared-data
+          emptyDir: { }
+      initContainers:
+        - name: generate-certificate
+          image: emberstack/openssl@sha256:1fad327428e28ac1138444fca06000c2bf04b5efb56e85440f5cbfb25e40a122
+          volumeMounts:
+            - name: shared-data
+              mountPath: /etc/nginx/ssl/
+          command:
+          - openssl
+          args:
+          - req
+          - -x509
+          - -subj
+          - /C=IT/ST=Turin/O=Nappozord
+          - -nodes
+          - -days
+          - "365"
+          - -newkey
+          - rsa:2048
+          - -keyout
+          - /etc/nginx/ssl/nginx.key
+          - -out
+          - /etc/nginx/ssl/nginx.cert
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            runAsGroup: 101
+            runAsUser: 101
+      containers:
+        - image: nappozord/spesappserver:yMJHcpt
+          volumeMounts:
+            - name: shared-data
+              mountPath: /etc/nginx/ssl/
+          imagePullPolicy: IfNotPresent
+          name: spesappserver
+          ports:
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: https
+              scheme: HTTPS
+            initialDelaySeconds: 3
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            runAsGroup: 101
+            runAsUser: 101
+          env:
+            - name: DB_HOST
+              value: 192.168.1.252
+            - name: DB_NAME
+              value: db_spesapp
+            - name: DB_USER
+              value: nappozord
+            - name: DB_PASSWORD
+              value: 123qwe.123qwe...
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spesappserver
+  name: spesappserver
+  namespace: test
+spec:
+  type: NodePort
+  selector:
+    app: spesappserver
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: https

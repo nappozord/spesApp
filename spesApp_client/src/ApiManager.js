@@ -8,8 +8,9 @@ const APISERVER_URL = 'https://spesapp.nappozord.tk/';
 
 export const getToken = (setLogged) => {
   AsyncStorage.getItem("token").then((token) => {
+    setLogged(true);
     //if (!token) {
-    fetch(APISERVER_URL + "api/token/", {
+    /*fetch(APISERVER_URL + "api/token/", {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -29,7 +30,7 @@ export const getToken = (setLogged) => {
       .catch((e) => {
         setLogged(true);
         console.log(e)
-      });
+      });*/
     //} else {
     //  headers["Authorization"] = "Bearer " + token;
     //  setLogged(true);

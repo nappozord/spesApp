@@ -1,0 +1,63 @@
+version: v1beta9
+images:
+  app:
+    image: nappozord/spesappserver
+    injectRestartHelper: true
+    appendDockerfileInstructions:
+    - USER root
+    rebuildStrategy: ignoreContextChanges
+deployments:
+- name: spesappserver
+  helm:
+    componentChart: true
+    values:
+      containers:
+      - image: nappozord/spesappserver
+        env:
+        - name: DB_HOST
+          value: "192.168.1.252"
+        - name: DB_NAME
+          value: "db_spesapp"
+        - name: DB_USER
+          value: "nappozord"
+        - name: DB_PASSWORD
+          value: "123qwe.123qwe..."
+      service:
+        ports:
+        - port: 8080
+dev:
+  ports:
+  - imageName: app
+    forward:
+    - port: 8000
+  open:
+  - url: http://localhost:8080
+  sync:
+  - imageName: app
+    excludePaths:
+    - .git/
+    uploadExcludePaths:
+    - Dockerfile
+    - devspace.yaml
+    onUpload:
+      restartContainer: true
+profiles:
+- name: production
+  patches:
+  - op: remove
+    path: images.app.appendDockerfileInstructions
+  - op: remove
+    path: images.app.injectRestartHelper
+  - op: remove
+    path: images.app.rebuildStrategy
+- name: interactive
+  patches:
+  - op: add
+    path: dev.interactive
+    value:
+      defaultEnabled: true
+  - op: add
+    path: images.app.entrypoint
+    value:
+    - sleep
+    - "9999999999"

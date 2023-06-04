@@ -12,7 +12,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import React, { useState, useEffect } from "react";
-import { CalculateRemaining, CreateList } from "./Utils";
+import { CalculateDiffDays, CalculateRemaining, CreateList } from "./Utils";
 import { colors } from "./Colors";
 import { deleteProduct, putProduct } from "./ApiManager";
 
@@ -135,6 +135,12 @@ export default function ProductInfo(props) {
                             CalculateRemaining(product).days +
                             "d"}
                         </Subheading>
+                      </Chip>
+                      <Chip
+                        icon="information"
+                        style={{ marginBottom: 2, marginTop: 2 }}
+                      >
+                        <Subheading>{"Tags: " + product.tags}</Subheading>
                       </Chip>
                     </>
                   ) : null}

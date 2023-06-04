@@ -68,7 +68,7 @@ export const CreateList = (products, options) => {
     })
     .forEach((p) => {
       if (p.tags.includes("Hold") && CalculateDiffDays(p.lastUpdated) > 0) {
-        p.tags.filter((t) => t !== "Hold");
+        p.tags = p.tags.filter((t) => t !== "Hold");
       }
 
       moneySpent = (parseFloat(moneySpent) + parseFloat(p.cost)).toFixed(2);
