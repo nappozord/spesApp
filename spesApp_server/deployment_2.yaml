@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: spesappserver
+  name: spesappserver
+  namespace: test
+spec:
+  selector:
+    matchLabels:
+      app: spesappserver
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spesappserver
+    spec:
+      volumes:
+        - name: shared-data
+          emptyDir: { }
+      containers:
+        - image: nappozord/spesappserver:latest
+          imagePullPolicy: IfNotPresent
+          name: spesappserver
+          ports:
+            - containerPort: 8444
+              name: https
+              protocol: TCP
+          securityContext:
+            capabilities:
+              drop:
+              - ALL
+            allowPrivilegeEscalation: false
+            privileged: false
+            runAsNonRoot: true
+            runAsGroup: 101
+            runAsUser: 101
+          env:
+            - name: DB_HOST
+              value: 192.168.1.252
+            - name: DB_NAME
+              value: db_spesapp
+            - name: DB_USER
+              value: nappozord
+            - name: DB_PASSWORD
+              value: 123qwe.123qwe...
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: spesappserver
+  name: spesappserver
+  namespace: test
+spec:
+  type: NodePort
+  selector:
+    app: spesappserver
+  ports:
+    - name: https
+      protocol: TCP
+      port: 8444
+      targetPort: https
